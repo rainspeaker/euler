@@ -28,7 +28,6 @@
   (apply map vector
          (map-indexed (fn [i coll] (drop i coll)) colls)))
 
-
 (def runs
   (lazy-cat (mapcat #(partition 4 1 %) 
                     grid) ;horizontals
