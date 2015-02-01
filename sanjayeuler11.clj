@@ -1,4 +1,6 @@
-                                        ; What is the greatest product of four adjacent numbers in the same direction (up down left right diagonally) in the 20×20 grid?
+; What is the greatest product of four adjacent numbers in the same
+; direction (up down left right diagonally) in the 20×20 grid?
+
 (def grid [[8  2  22 97 38 15 0  40 0  75 4  5  7  78 52 12 50 77 91 8 ]
            [49 49 99 40 17 81 18 57 60 87 17 40 98 43 69 48 4  56 62 0 ]
            [81 49 31 73 55 79 14 29 93 71 40 67 53 88 30 3  49 13 36 65]
@@ -21,10 +23,8 @@
            [1  70 54 71 83 51 54 69 16 92 33 48 61 43 52 1  89 19 67 48]])
 
 (defn diagonals [colls]
-  (->> colls 
-       (map-indexed (fn [i coll] 
-                      (drop i coll)))
-       (apply map vector)))
+  (apply map vector
+         (map-indexed (fn [i coll] (drop i coll)) colls)))
 
 (def runs
   (concat (mapcat #(partition 4 1 %) 
@@ -35,7 +35,6 @@
                   (partition 4 1 grid)) ;diagonals going down
           (mapcat diagonals
                   (partition 4 1 (reverse grid))))) ; diags going up
-
 
 (print 
  (reduce max (map #(apply * %) runs)))
