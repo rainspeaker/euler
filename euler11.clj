@@ -1,5 +1,5 @@
-; What is the greatest product of four adjacent numbers in the same
-; direction (up down left right diagonally) in the 20×20 grid?
+                                        ; What is the greatest product of four adjacent numbers in the same
+                                        ; direction (up down left right diagonally) in the 20×20 grid?
 
 (def grid [[8  2  22 97 38 15 0  40 0  75 4  5  7  78 52 12 50 77 91 8 ]
            [49 49 99 40 17 81 18 57 60 87 17 40 98 43 69 48 4  56 62 0 ]
@@ -22,19 +22,59 @@
            [20 73 35 29 78 31 90 1  74 31 49 71 48 86 81 16 23 57 5  54]
            [1  70 54 71 83 51 54 69 16 92 33 48 61 43 52 1  89 19 67 48]])
 
-(defn diagonals [colls]
+(defn diagonals 
+  "for an h*w matrix of the form [& rows], returns all downward diagonals that start on the top row and are h long."
+  [colls]
   (apply map vector
          (map-indexed (fn [i coll] (drop i coll)) colls)))
 
-(def runs
-  (concat (mapcat #(partition 4 1 %) 
-                  grid) ;horizontals
-          (mapcat #(partition 4 1 %)
-                  (apply map vector grid)) ; verticals
-          (mapcat diagonals
-                  (partition 4 1 grid)) ;diagonals going down
-          (mapcat diagonals
-                  (partition 4 1 (reverse grid))))) ; diags going up
 
-(print 
+(def runs
+  (lazy-cat (mapcat #(partition 4 1 %) 
+                    grid) ;horizontals
+            (mapcat #(partition 4 1 %)
+                    (apply map vector grid)) ; verticals
+            (mapcat diagonals
+                    (partition 4 1 grid)) ;diagonals going down
+            (mapcat diagonals
+                    (partition 4 1 (reverse grid))))) ; diags going up
+
+(defn products [input]
+  (map (partial reduce *)
+       (partition 4 1 (keep identity input))))
+
+(def adjacents
+  (lazy-cat grid
+            (for [i (range 20)]
+              (lazy-cat
+               (for [x (range 20)] (get (get grid x) i))
+               (for [x (range 20)] (get (get grid x) (+ x i)))
+               (for [x (range 20)] (get (get grid x) (- x i)))
+               (for [x (range 20)] (get (get grid (- 19 x)) (+ x i)))
+               (for [x (range 20)] (get (get grid (- 19 x)) (- x i)))))))
+
+
+(time 
  (reduce max (map #(apply * %) runs)))
+
+(time
+ (reduce max (flatten (map products adjacents))))
+
+(time (concat grid
+              (for [i (range 20)]
+                (concat
+                 (for [x (range 20)] (get (get grid x) i))
+                 (for [x (range 20)] (get (get grid x) (+ x i)))
+                 (for [x (range 20)] (get (get grid x) (- x i)))
+                 (for [x (range 20)] (get (get grid (- 19 x)) (+ x i)))
+                 (for [x (range 20)] (get (get grid (- 19 x)) (- x i)))))))
+
+
+(time (concat (mapcat #(partition 4 1 %) 
+                      grid) ;horizontals
+              (mapcat #(partition 4 1 %)
+                      (apply map vector grid)) ; verticals
+              (mapcat diagonals
+                      (partition 4 1 grid)) ;diagonals going down
+              (mapcat diagonals
+                      (partition 4 1 (reverse grid)))))
