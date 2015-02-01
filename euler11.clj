@@ -39,7 +39,8 @@
                     (partition 4 1 (reverse grid))))) ; diags going up
 
 (defn products [input]
-  (map (partial reduce *)
+  (map #(apply * %)   ;; made this "apply" to make the time comparison
+       ;; more fair!
        (partition 4 1 (keep identity input))))
 
 (def adjacents
